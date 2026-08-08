@@ -1,0 +1,31 @@
+# Секреты — никогда в репозиторий
+.env
+*.key
+
+# Виртуальное окружение
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Скачанный корпус и кэш моделей: качаются скриптом, в репозитории не нужны
+data/raw/
+data/cache/
+models/
+
+# Результаты прогонов оценки (кроме итогового отчёта, он коммитится явно)
+reports/*.json
+reports/*.csv
+
+# Среда разработки
+.vscode/
+.idea/
+
+# Windows
+Thumbs.db
+desktop.ini

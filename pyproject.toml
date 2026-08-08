@@ -1,0 +1,11 @@
+[project]
+name = "rag-mdn-ru"
+version = "0.1.0"
+description = "RAG по русской документации MDN с измеримой оценкой качества"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+# Чтобы тесты видели пакет из src/ без установки пакета в окружение.
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-v"
