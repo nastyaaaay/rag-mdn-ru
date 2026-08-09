@@ -152,6 +152,18 @@ def test_extract_macro_names_finds_flags_and_calls():
     assert macros["optional_inline"] == 1
 
 
+def test_extract_macro_names_keeps_hyphenated_names_intact():
+    """Регрессия: имя обрезалось на дефисе, и в отчёте появлялся
+    несуществующий макрос `{{non}}` вместо `{{non-standard_inline}}`.
+    """
+    text = "Свойство{{non-standard_inline}} нестандартное.{{non-standard_header}}"
+    macros = extract_macro_names(text)
+
+    assert macros["non-standard_inline"] == 1
+    assert macros["non-standard_header"] == 1
+    assert "non" not in macros
+
+
 def test_extract_macro_names_empty_when_none_present():
     assert extract_macro_names("Обычный текст без макросов.") == {}
 

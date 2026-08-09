@@ -20,7 +20,9 @@ _HTML_TAG = re.compile(r"<[^>]+>")
 #: и пути в URL почти всегда на латинице и не имеют отношения к переводу.
 #: Текст ссылки в квадратных скобках остаётся.
 _LINK_TARGET = re.compile(r"\]\([^)]*\)")
-_MACRO_NAME = re.compile(r"\{\{\s*([A-Za-z_][A-Za-z0-9_]*)")
+#: Имя макроса MDN. Дефис обязателен в наборе символов: без него
+#: `{{non-standard_inline}}` обрезался бы до несуществующего `{{non}}`.
+_MACRO_NAME = re.compile(r"\{\{\s*([A-Za-z_][A-Za-z0-9_-]*)")
 _CYRILLIC = re.compile(r"[а-яёА-ЯЁ]")
 _LATIN = re.compile(r"[a-zA-Z]")
 
