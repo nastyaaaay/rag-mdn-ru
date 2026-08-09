@@ -66,7 +66,18 @@ def test_heading_path_tracks_nesting():
     paths = [section.heading_path for section in doc.sections]
 
     assert ("Array.prototype.filter()",) in paths
-    assert ("Array.prototype.filter()", "", "Параметры") in paths
+    assert ("Array.prototype.filter()", "Параметры") in paths
+
+
+def test_heading_path_has_no_empty_gaps():
+    """Заголовок ### сразу после текста, без ## над ним, не должен
+    оставлять в пути дыру вида «А ›  › Б».
+    """
+    doc = parse_document(ARRAY_FILTER)
+
+    for section in doc.sections:
+        assert "" not in section.heading_path
+        assert " ›  › " not in section.heading_line
 
 
 def test_heading_line_is_human_readable():

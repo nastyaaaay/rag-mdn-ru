@@ -180,7 +180,11 @@ def _split_sections(text: str, root_title: str) -> tuple[Section, ...]:
     def flush() -> None:
         body = _MULTIPLE_BLANK_LINES.sub("\n\n", "\n".join(buffer)).strip()
         if body:
-            sections.append(Section(heading_path=tuple(heading_stack), text=body))
+            # Пустые элементы — это заполнители стека, появляющиеся когда
+            # уровень заголовка перескакивает ступень (### сразу после текста,
+            # без ## над ним). В пути они не нужны: дают дыру вида «А ›  › Б».
+            path = tuple(title for title in heading_stack if title)
+            sections.append(Section(heading_path=path, text=body))
         buffer.clear()
 
     for line in text.splitlines():
