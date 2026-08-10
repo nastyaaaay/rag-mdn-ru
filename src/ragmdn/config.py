@@ -70,9 +70,13 @@ class Settings(BaseSettings):
     chunk_min_chars: int = 200
 
     # --- Эмбеддинги --------------------------------------------------------
+    # multilingual-e5-small в библиотеке fastembed не зашит — она конвертирует
+    # в ONNX не весь HuggingFace, а свой список моделей. Из этого списка
+    # для русского языка подходит e5-large: та же схема с префиксами
+    # query:/passage:, только крупнее (2.24 ГБ, 1024 измерения вместо 384).
 
-    embedding_model: str = "intfloat/multilingual-e5-small"
-    embedding_dim: int = 384
+    embedding_model: str = "intfloat/multilingual-e5-large"
+    embedding_dim: int = 1024
     #: Предел модели. Вынесен в настройки, чтобы тест мог его проверить.
     embedding_max_tokens: int = 512
 

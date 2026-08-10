@@ -17,7 +17,7 @@ def make_settings(**overrides) -> Settings:
 def test_defaults_are_sane():
     settings = make_settings()
 
-    assert settings.embedding_dim == 384, "размерность должна совпадать с моделью e5-small"
+    assert settings.embedding_dim == 1024, "размерность должна совпадать с моделью e5-large"
     assert settings.llm_temperature == 0.0, "оценка качества требует воспроизводимых ответов"
     assert "web/javascript" in settings.mdn_areas
 
