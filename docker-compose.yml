@@ -1,0 +1,39 @@
+# Инфраструктура проекта: PostgreSQL с расширением pgvector.
+#
+# Образ pgvector/pgvector — это обычный PostgreSQL, в который уже встроено
+# расширение для работы с векторами. Собирать его самостоятельно не нужно.
+#
+# Приложение пока запускается не в контейнере, а локально (шаг 14 добавит его
+# сюда же) — поэтому порт базы наружу проброшен.
+
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    container_name: ragmdn-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-rag}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rag}
+      POSTGRES_DB: ${POSTGRES_DB:-ragmdn}
+      # Локаль намеренно не задаётся. Русской локали (ru_RU.utf8) в этом
+      # образе нет — с ней initdb падает и контейнер уходит в перезапуск.
+      # Полнотекстовому поиску она и не нужна: конфигурация 'russian'
+      # живёт внутри PostgreSQL и от системной локали не зависит.
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Файлы из этой папки выполняются при первом создании базы,
+      # в алфавитном порядке. Так создаётся расширение и схема.
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      # Пока проверка не пройдёт, база считается не готовой. Это нужно,
+      # чтобы скрипт индексации не начал ломиться в ещё не поднятый сервер.
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-rag} -d ${POSTGRES_DB:-ragmdn}"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+volumes:
+  pgdata:

@@ -9,3 +9,6 @@ requires-python = ">=3.12"
 pythonpath = ["src"]
 testpaths = ["tests"]
 addopts = "-v"
+markers = [
+    "db: требует поднятой базы (docker compose up -d); без неё тест пропускается",
+]

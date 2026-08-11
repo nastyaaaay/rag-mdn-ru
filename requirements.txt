@@ -4,3 +4,4 @@
 pydantic-settings>=2.0
 pytest>=8.0
 fastembed>=0.4
+psycopg[binary]>=3.2
