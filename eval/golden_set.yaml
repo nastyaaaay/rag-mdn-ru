@@ -1,0 +1,362 @@
+# Эталонный набор вопросов для оценки качества.
+#
+# Как собран: вопросы написаны по тексту самих документов, а НЕ по выдаче
+# поиска. Это принципиально — если формулировать вопросы, подглядывая в то,
+# что система находит, метрики покажут не качество системы, а качество
+# подгонки под неё.
+#
+# Разбит на группы, и метрики считаются по каждой отдельно: средняя цифра
+# по всему набору скрывает ровно то, что интереснее всего.
+#
+#   direct  — прямой вопрос терминами документации. Базовый уровень.
+#   natural — «как спросил бы живой человек»: своими словами, от задачи,
+#             а не от термина. Здесь векторный поиск должен обыгрывать
+#             словесный.
+#   similar — различение похожих страниц справочника (filter против map,
+#             let против const). Самое слабое место обычного поиска: текст
+#             у таких страниц почти дословно совпадает.
+#   trap    — ловушки: правдоподобные вопросы про веб, ответа на которые
+#             в корпусе НЕТ. Правильное поведение — признаться, что ответа
+#             нет. Здесь обычно и вылезает выдумывание.
+#   cross   — ответ требует нескольких документов сразу.
+#
+# expected_slugs: приемлемые документы-источники. Их может быть несколько:
+# на вопрос «чем filter отличается от map» верным будет любой из двух.
+# Пустой список означает ловушку — верного документа не существует.
+
+version: 1
+
+questions:
+  # --- Прямые вопросы ----------------------------------------------------
+
+  - id: d01
+    group: direct
+    question: Что возвращает метод filter у массива?
+    expected_slugs:
+      - Web/JavaScript/Reference/Global_Objects/Array/filter
+
+  - id: d02
+    group: direct
+    question: Какие аргументы получает функция обратного вызова в методе map?
+    expected_slugs:
+      - Web/JavaScript/Reference/Global_Objects/Array/map
+
+  - id: d03
+    group: direct
+    question: Можно ли изменить значение переменной, объявленной через const?
+    expected_slugs:
+      - Web/JavaScript/Reference/Statements/const
+
+  - id: d04
+    group: direct
+    question: Что такое область видимости блока у let?
+    expected_slugs:
+      - Web/JavaScript/Reference/Statements/let
+
+  - id: d05
+    group: direct
+    question: В каких состояниях может находиться промис?
+    expected_slugs:
+      - Web/JavaScript/Reference/Global_Objects/Promise
+
+  - id: d06
+    group: direct
+    question: Что делает оператор опциональной цепочки?
+    expected_slugs:
+      - Web/JavaScript/Reference/Operators/Optional_chaining
+
+  - id: d07
+    group: direct
+    question: Что означает код состояния HTTP 404?
+    expected_slugs:
+      - Web/HTTP/Reference/Status/404
+
+  - id: d08
+    group: direct
+    question: Чем отличается постоянное перенаправление 301 от временного?
+    expected_slugs:
+      - Web/HTTP/Reference/Status/301
+
+  - id: d09
+    group: direct
+    question: Для чего нужен заголовок Cache-Control?
+    expected_slugs:
+      - Web/HTTP/Reference/Headers/Cache-Control
+
+  - id: d10
+    group: direct
+    question: Что такое CORS и зачем он нужен?
+    # В корпусе два документа отвечают на этот вопрос: краткая статья
+    # глоссария и подробное руководство. Оба верны — засчитывать только
+    # один было бы придиркой к системе, а не измерением качества.
+    expected_slugs:
+      - Glossary/CORS
+      - Web/HTTP/Guides/CORS
+
+  - id: d11
+    group: direct
+    question: Как свойство justify-content выравнивает элементы?
+    expected_slugs:
+      - Web/CSS/Reference/Properties/justify-content
+
+  - id: d12
+    group: direct
+    question: Какие значения принимает свойство position?
+    expected_slugs:
+      - Web/CSS/Reference/Properties/position
+
+  - id: d13
+    group: direct
+    question: Что делает метод reduce у массива?
+    expected_slugs:
+      - Web/JavaScript/Reference/Global_Objects/Array/reduce
+
+  - id: d14
+    group: direct
+    question: Что произойдёт при разборе некорректного JSON методом parse?
+    expected_slugs:
+      - Web/JavaScript/Reference/Global_Objects/JSON/parse
+
+  - id: d15
+    group: direct
+    question: Чем отличается display block от inline?
+    expected_slugs:
+      - Web/CSS/Reference/Properties/display
+
+  # --- Как спросил бы человек --------------------------------------------
+  # Ни термина, ни названия метода — только задача своими словами.
+
+  - id: n01
+    group: natural
+    question: у меня есть список товаров, хочу оставить только дешевле тысячи
+    expected_slugs:
+      - Web/JavaScript/Reference/Global_Objects/Array/filter
+
+  - id: n02
+    group: natural
+    question: как из массива цен получить массив цен со скидкой
+    expected_slugs:
+      - Web/JavaScript/Reference/Global_Objects/Array/map
+
+  - id: n03
+    group: natural
+    question: как посчитать сумму всех чисел в массиве
+    expected_slugs:
+      - Web/JavaScript/Reference/Global_Objects/Array/reduce
+
+  - id: n04
+    group: natural
+    question: пишу obj.user.name и падает ошибка если user нет
+    expected_slugs:
+      - Web/JavaScript/Reference/Operators/Optional_chaining
+
+  - id: n05
+    group: natural
+    question: почему браузер ругается что запрос к чужому сайту заблокирован
+    expected_slugs:
+      - Glossary/CORS
+      - Web/HTTP/Guides/CORS
+
+  - id: n06
+    group: natural
+    question: не могу отцентрировать блок по горизонтали внутри контейнера
+    expected_slugs:
+      - Web/CSS/Reference/Properties/justify-content
+      - Web/CSS/Reference/Properties/align-items
+
+  - id: n07
+    group: natural
+    question: страница не найдена, какой код должен вернуть сервер
+    expected_slugs:
+      - Web/HTTP/Reference/Status/404
+
+  - id: n08
+    group: natural
+    question: переехал на новый адрес, как сказать поисковикам что навсегда
+    expected_slugs:
+      - Web/HTTP/Reference/Status/301
+
+  - id: n09
+    group: natural
+    question: браузер показывает старую версию файла после обновления
+    expected_slugs:
+      - Web/HTTP/Reference/Headers/Cache-Control
+
+  - id: n10
+    group: natural
+    question: объявил переменную в цикле, а снаружи её не видно, почему
+    expected_slugs:
+      - Web/JavaScript/Reference/Statements/let
+
+  - id: n11
+    group: natural
+    question: как дождаться пока загрузятся данные и потом их показать
+    expected_slugs:
+      - Web/JavaScript/Reference/Global_Objects/Promise
+
+  - id: n12
+    group: natural
+    question: хочу прижать элемент к низу экрана чтобы он не уезжал при прокрутке
+    expected_slugs:
+      - Web/CSS/Reference/Properties/position
+
+  # --- Различение похожих страниц ----------------------------------------
+  # Текст у этих страниц почти дословно совпадает. Проверяем, отличает ли
+  # система их друг от друга — здесь ломается большинство систем поиска.
+
+  - id: s01
+    group: similar
+    question: какой метод массива возвращает новый массив той же длины
+    expected_slugs:
+      - Web/JavaScript/Reference/Global_Objects/Array/map
+
+  - id: s02
+    group: similar
+    question: какой метод массива отбирает элементы по условию
+    expected_slugs:
+      - Web/JavaScript/Reference/Global_Objects/Array/filter
+
+  - id: s03
+    group: similar
+    question: какой метод перебирает массив и ничего не возвращает
+    expected_slugs:
+      - Web/JavaScript/Reference/Global_Objects/Array/forEach
+
+  - id: s04
+    group: similar
+    question: какой метод сворачивает массив в одно значение
+    expected_slugs:
+      - Web/JavaScript/Reference/Global_Objects/Array/reduce
+
+  - id: s05
+    group: similar
+    question: какое объявление переменной запрещает повторное присваивание
+    expected_slugs:
+      - Web/JavaScript/Reference/Statements/const
+
+  - id: s06
+    group: similar
+    question: какое объявление переменной разрешает менять значение
+    expected_slugs:
+      - Web/JavaScript/Reference/Statements/let
+
+  - id: s07
+    group: similar
+    question: выравнивание по главной оси флекс-контейнера
+    expected_slugs:
+      - Web/CSS/Reference/Properties/justify-content
+
+  - id: s08
+    group: similar
+    question: выравнивание по поперечной оси флекс-контейнера
+    expected_slugs:
+      - Web/CSS/Reference/Properties/align-items
+
+  - id: s09
+    group: similar
+    question: код ответа при постоянном переезде страницы
+    expected_slugs:
+      - Web/HTTP/Reference/Status/301
+
+  - id: s10
+    group: similar
+    question: код ответа когда ресурса не существует
+    expected_slugs:
+      - Web/HTTP/Reference/Status/404
+
+  # --- Ловушки -----------------------------------------------------------
+  # Вопросы про веб-разработку, ответа на которые в корпусе нет.
+  # Правильное поведение системы — сказать, что ответа в документах нет.
+  #
+  # Первые две — особенно коварные: страницы про z-index и <input> на MDN
+  # существуют, но не прошли наш языковой фильтр (18% и 34% кириллицы),
+  # поэтому в индекс не попали. Вопрос выглядит абсолютно уместным.
+
+  - id: t01
+    group: trap
+    question: как работает свойство z-index и почему элемент не поднимается наверх
+    expected_slugs: []
+
+  - id: t02
+    group: trap
+    question: какие типы бывают у элемента input в HTML
+    expected_slugs: []
+
+  - id: t03
+    group: trap
+    question: как получить координаты элемента через getBoundingClientRect
+    expected_slugs: []
+
+  - id: t04
+    group: trap
+    question: как подписаться на событие клика через addEventListener
+    expected_slugs: []
+
+  - id: t05
+    group: trap
+    question: как сохранить данные в localStorage браузера
+    expected_slugs: []
+
+  - id: t06
+    group: trap
+    question: как нарисовать прямоугольник на canvas
+    expected_slugs: []
+
+  - id: t07
+    group: trap
+    question: как запросить у пользователя доступ к камере
+    expected_slugs: []
+
+  - id: t08
+    group: trap
+    question: как настроить сборку проекта в webpack
+    expected_slugs: []
+
+  - id: t09
+    group: trap
+    question: чем useState отличается от useEffect в React
+    expected_slugs: []
+
+  - id: t10
+    group: trap
+    question: как развернуть приложение на сервере через docker compose
+    expected_slugs: []
+
+  # --- На стыке тем ------------------------------------------------------
+
+  - id: c01
+    group: cross
+    question: как отправить запрос на другой домен и обработать ответ асинхронно
+    expected_slugs:
+      - Glossary/CORS
+      - Web/HTTP/Guides/CORS
+      - Glossary/AJAX
+      - Web/JavaScript/Reference/Global_Objects/Promise
+
+  - id: c02
+    group: cross
+    question: сервер вернул 404, как показать это пользователю не перезагружая страницу
+    expected_slugs:
+      - Web/HTTP/Reference/Status/404
+      - Glossary/AJAX
+
+  - id: c03
+    group: cross
+    question: получил список от сервера, надо отфильтровать и показать
+    expected_slugs:
+      - Web/JavaScript/Reference/Global_Objects/Array/filter
+      - Glossary/AJAX
+      - Web/JavaScript/Reference/Global_Objects/Promise
+
+  - id: c04
+    group: cross
+    question: как закешировать статику чтобы браузер не запрашивал её каждый раз
+    expected_slugs:
+      - Web/HTTP/Reference/Headers/Cache-Control
+
+  - id: c05
+    group: cross
+    question: разобрать json от сервера и вывести только нужные поля
+    expected_slugs:
+      - Web/JavaScript/Reference/Global_Objects/JSON/parse
+      - Web/JavaScript/Reference/Global_Objects/Array/map

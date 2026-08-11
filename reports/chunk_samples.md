@@ -2,84 +2,80 @@
 
 Так выглядит то, что попадёт в векторную базу. Каждый фрагмент показан ровно в том виде, в каком уйдёт в модель эмбеддингов — вместе с путём заголовков в первой строке.
 
-## Фрагмент 1: Date.prototype.setSeconds()
+## Фрагмент 1: Date.prototype.setMilliseconds()
 
-- Источник: https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Date/setSeconds
-- Длина: 588 символов
+- Источник: https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Date/setMilliseconds
+- Длина: 461 символов
 
 ````
-Date.prototype.setSeconds()
+Date.prototype.setMilliseconds()
 
-Если вы не определите значения параметра `msValue`, будет использоваться значение, возвращаемое методом getMilliseconds().
-
-Если значение определяемого параметра будет выходить за пределы ожидаемого диапазона, метод `setSeconds()` попытается соответственно обновить другой параметр и информацию о дате в объекте Date. Например, если в качестве `secondsValue` передать значение 100, минуты увеличатся на 1, а в качестве секунд будет использоваться значение 40.
+Если значение параметра `millisecondsValue` будет выходить за пределы ожидаемого диапазона, метод `setMilliseconds()` соответственно обновит объект Date. Например, если в качестве `millisecondsValue` передать значение 1005, количество секунд увеличится на 1, а в качестве миллисекунд будет использоваться значение 5.
 
 ```js
 var theBigDay = new Date();
-theBigDay.setSeconds(30);
+theBigDay.setMilliseconds(100);
 ```
 
-- Date.prototype.getSeconds()
-- Date.prototype.setUTCSeconds()
+- Date.prototype.getMilliseconds()
+- Date.prototype.setUTCMilliseconds()
 ````
 
-## Фрагмент 2: Деструктурирующее присваивание
+## Фрагмент 2: delete
 
-- Источник: https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Operators/Destructuring
-- Длина: 594 символов
+- Источник: https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Operators/delete
+- Длина: 372 символов
 
 ````
-Деструктурирующее присваивание
+delete › Синтаксис
 
-Синтаксис **деструктурирующего присваивания** в выражениях JavaScript позволяет извлекать данные из массивов или объектов при помощи синтаксиса, подобного объявлению массива или литералов в объекте.
+- `object` — Имя объекта или выражение, результатом вычисления которого является объект.
+- `property` — Удаляемое свойство.
+- `index` — Целое число, представляющее собой индекс массива, который должен быть удалён.
 
-```js
-var a, b, rest;
-[a, b] = [1, 2];
-console.log(a); // 1
-console.log(b); // 2
+Возвращает false, только если свойство существует в самом объекте, а не в его прототипах, и не может быть удалено. Во всех остальных случаях возвращает true.
+````
 
-[a, b, ...rest] = [1, 2, 3, 4, 5];
-console.log(a); // 1
-console.log(b); // 2
-console.log(rest); // [3, 4, 5]
+## Фрагмент 3: background-size
 
-({ a, b } = { a: 1, b: 2 });
-console.log(a); // 1
-console.log(b); // 2
+- Источник: https://developer.mozilla.org/ru/docs/Web/CSS/Reference/Properties/background-size
+- Длина: 494 символов
 
-({ a, b, ...rest } = { a: 1, b: 2, c: 3, d: 4 });
-console.log(a); // 1
-console.log(b); // 2
-console.log(rest); // { c:3, d:4 }
+````
+background-size › Примеры
+
+Эта демонстрация `background-size: cover` и эта демонстрация `background-size: contain` предназначены для открытия в новых окнах, чтобы вы могли видеть, как `contain` и `cover` ведут себя, когда размеры области расположения фона изменяются. Эта серия демонстраций, как работает `background-size` и взаимодействует с другими свойствами `background-*`, должна в значительной степени охватить оставшуюся основу в том, как использовать `background-size` отдельно и в сочетании с другими свойствами.
+````
+
+## Фрагмент 4: <header>
+
+- Источник: https://developer.mozilla.org/ru/docs/Web/HTML/Reference/Elements/header
+- Длина: 441 символов
+
+````
+<header>
+
+```css interactive-example
+.logo {
+  background: left / cover
+    url("/shared-assets/images/examples/puppy-header.jpg");
+  display: flex;
+  height: 120px;
+  align-items: center;
+  justify-content: center;
+  font:
+    bold calc(1em + 2 * (100vw - 120px) / 100) "Dancing Script",
+    fantasy;
+  color: #ff0083;
+  text-shadow: #000 2px 2px 0.2rem;
+}
+
+header > h1 {
+  margin-bottom: 0;
+}
+
+header > time {
+  font: italic 0.7rem sans-serif;
+}
 ```
-````
-
-## Фрагмент 3: clear
-
-- Источник: https://developer.mozilla.org/ru/docs/Web/CSS/Reference/Properties/clear
-- Длина: 947 символов
-
-````
-clear › Синтаксис › Значения
-
-- `none` — Является ключевым словом, указывающим, что элемент не перемещается вниз, чтобы очистить предыдущие плавающие элементы.
-- `left` — Является ключевым словом, указывающим, что элемент перемещается вниз, чтобы очистить _левые_ поплавки.
-- `right` — Является ключевым словом, указывающим, что элемент перемещается вниз, чтобы удалить прошлые _правые_ поплавки.
-- `both` — Это ключевое слово, указывающее, что элемент перемещается вниз, чтобы очистить как левые, так и правые поплавки.
-- `inline-start` — Является ключевым словом, указывающим, что элемент перемещается вниз для очистки поплавков _в начале содержащего его блока_, то есть _левые_ поплавки на скриптах **ltr** и _правые_ поплавки на скриптах **rtl**.
-- `inline-end` — Является ключевым словом, указывающим, что элемент перемещается вниз для очистки поплавков _в конце содержащего его блока_, то есть _правые_ поплавки на скриптах **ltr** и _левые_ поплавки на скриптах **rtl**.
-````
-
-## Фрагмент 4: Элемент
-
-- Источник: https://developer.mozilla.org/ru/docs/Web/HTML/Reference/Elements
-- Длина: 872 символов
-
-````
-Элемент › Устаревшие и осуждаемые элементы
-
-A frame should be used within a frameset.                                                                                                                                                                                                                                                                                                       |
-| frameset  | Used to contain frame elements.                                                                                                                                                                                                                                                                                                                                                                                            |
-| image     | Элемент HTML `` был экспериментальным элементом, предназначенный для отображения изображений.
 ````

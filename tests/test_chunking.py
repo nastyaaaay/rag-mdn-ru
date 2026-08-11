@@ -167,6 +167,25 @@ def test_embedding_input_respects_limit_including_heading():
         assert full_length <= settings.chunk_max_chars
 
 
+def test_code_heavy_chunk_is_smaller_than_prose_chunk():
+    """Регрессия на измерение: код расходует лимит модели вдвое быстрее прозы.
+
+    В корпусе нашёлся фрагмент с примером кода (шахматная доска массивом
+    строк): 1102 символа дали 617 токенов при лимите 512 — модель отрезала бы
+    хвост молча. Проза даёт около 3.6 символа на токен, плотный код — 1.8,
+    поэтому код считается с двойным весом и такие фрагменты режутся раньше.
+    """
+    settings = make_settings()
+    code_line = '  ["R", "N", "B", "Q", "K", "B", "N", "R"],'
+    code = "```js\nconst board = [\n" + "\n".join([code_line] * 40) + "\n];\n```"
+
+    pieces = chunk_sections((section(code),), settings)
+
+    for _, text in pieces:
+        # С двойным весом фрагмент кода не должен занимать весь лимит символов
+        assert len(text) <= settings.chunk_max_chars // 2 + 200
+
+
 def test_chunk_embedding_input_starts_with_heading_path():
     chunk = Chunk(
         slug="Web/JavaScript/Reference/Global_Objects/Array/filter",

@@ -36,6 +36,17 @@ class DocumentRow:
     char_count: int
 
 
+def vector_literal(vector: Sequence[float]) -> str:
+    """Представление вектора в виде, который понимает pgvector: '[1,2,3]'.
+
+    Через `str(list)` делать нельзя: модель возвращает числа numpy, а начиная
+    с numpy 2 их представление выглядит как `np.float64(0.1)`, и база
+    отвергает такую строку. Ошибка вылезает не при записи, а при первом же
+    поиске — то есть далеко от места, где сделана.
+    """
+    return json.dumps([float(value) for value in vector])
+
+
 def content_hash(text: str) -> str:
     """Хеш содержимого фрагмента.
 
@@ -207,8 +218,7 @@ def insert_chunks(
                     chunk.text,
                     len(chunk.text),
                     content_hash(chunk.text),
-                    # pgvector принимает вектор в виде строки '[1,2,3]'
-                    json.dumps(list(vector)),
+                    vector_literal(vector),
                 )
                 for chunk, vector in zip(chunks, embeddings)
             ],

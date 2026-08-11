@@ -61,6 +61,44 @@ def test_schema_dimension_matches_settings():
     assert int(match.group(1)) == make_settings().embedding_dim
 
 
+def test_vector_literal_formats_plain_numbers():
+    """Регрессия: numpy 2 представляет числа как np.float64(0.1).
+
+    Через str(list) вектор превращался в строку с np.float64(...), которую
+    база отвергает. Ломалось это не при записи, а при первом поиске — то есть
+    далеко от места, где ошибка сделана.
+    """
+    from ragmdn.db import vector_literal
+
+    literal = vector_literal([0.1, -0.25, 3.0])
+
+    assert "np.float64" not in literal
+    assert literal == "[0.1, -0.25, 3.0]"
+
+
+def test_vector_literal_handles_numpy_scalars():
+    from ragmdn.db import vector_literal
+
+    numpy = pytest.importorskip("numpy")
+    literal = vector_literal(numpy.array([0.5, -1.5], dtype=numpy.float64))
+
+    assert "np.float64" not in literal
+    assert literal == "[0.5, -1.5]"
+
+
+def test_tests_never_touch_the_working_database(test_settings):
+    """Страховка от очень дорогой ошибки.
+
+    Тесты очищают таблицы перед проверкой. Пока они ходили в рабочую базу,
+    один прогон `pytest` стирал результат часовой индексации. Если кто-то
+    случайно вернёт рабочий адрес — этот тест упадёт первым.
+    """
+    working = Settings(_env_file=None).database_url
+
+    assert test_settings.database_url != working
+    assert test_settings.database_url.endswith("_test")
+
+
 def test_content_hash_is_stable_and_distinguishing():
     assert content_hash("текст") == content_hash("текст")
     assert content_hash("текст") != content_hash("текст ")
@@ -78,26 +116,12 @@ def test_index_parameters_include_model_and_chunking():
 # --- Тесты с базой -------------------------------------------------------
 
 
-@pytest.fixture(scope="session")
-def database_available() -> str | None:
-    """Одна проверка доступности базы на весь прогон.
-
-    Если проверять в каждом тесте, прогон без поднятой базы растягивается
-    на минуту: каждый тест ждёт свой таймаут подключения.
-    """
-    try:
-        with connect(make_settings(), connect_timeout=3):
-            return None
-    except Exception as exc:  # noqa: BLE001 — годится любая неудача подключения
-        return str(exc)
-
-
 @pytest.fixture
-def db(database_available):
-    """Подключение к базе; пропускает тест, если база недоступна."""
+def db(database_available, test_settings):
+    """Подключение к ТЕСТОВОЙ базе; пропускает тест, если она недоступна."""
     if database_available is not None:
         pytest.skip(f"база недоступна ({database_available}); поднимите: docker compose up -d")
-    with connect(make_settings()) as conn:
+    with connect(test_settings) as conn:
         yield conn
 
 
