@@ -94,6 +94,56 @@ def test_natural_questions_avoid_exact_method_names(questions):
             )
 
 
+def test_every_trap_declares_absent_terms(questions):
+    """Ловушку нельзя объявить голословно.
+
+    Первые версии ловушек (z-index, <input>, canvas) оказались негодными:
+    ответ на них в корпусе был, система отвечала правильно, а эталон
+    считал это промахом. Теперь каждая ловушка обязана назвать слова,
+    отсутствие которых проверяется машиной.
+    """
+    for question in questions:
+        if question.group == "trap":
+            assert question.absent_terms, (
+                f"{question.id}: у ловушки не указаны absent_terms — "
+                "нечем подтвердить, что ответа в корпусе действительно нет"
+            )
+
+
+@pytest.mark.db
+def test_traps_really_have_no_answer_in_the_index(questions, database_available, test_settings):
+    """Проверка ловушек по настоящему индексу.
+
+    Ловушка, на которую в корпусе есть ответ, — худший вид ошибки
+    в эталоне: она наказывает систему за верное поведение и занижает
+    метрику честности.
+    """
+    if database_available is not None:
+        pytest.skip(f"база недоступна ({database_available})")
+
+    from ragmdn.config import Settings
+    from ragmdn.db import connect
+
+    # Проверяем по рабочему индексу: именно на нём считаются метрики.
+    working = Settings(_env_file=None)
+    with connect(working) as conn, conn.cursor() as cur:
+        cur.execute("SELECT count(*) FROM documents")
+        if cur.fetchone()[0] < 100:
+            pytest.skip("рабочий индекс пуст: python -m ragmdn.index_all")
+
+        broken = []
+        for question in questions:
+            for term in question.absent_terms:
+                cur.execute(
+                    "SELECT count(*) FROM documents WHERE slug ILIKE %s", (f"%{term}%",)
+                )
+                found = cur.fetchone()[0]
+                if found:
+                    broken.append(f"{question.id}: «{term}» встречается в {found} документах")
+
+    assert not broken, "ловушки, на которые в корпусе есть ответ:\n" + "\n".join(broken)
+
+
 def test_rejects_unknown_group(tmp_path):
     bad = tmp_path / "bad.yaml"
     bad.write_text(

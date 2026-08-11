@@ -268,59 +268,73 @@ questions:
   # Вопросы про веб-разработку, ответа на которые в корпусе нет.
   # Правильное поведение системы — сказать, что ответа в документах нет.
   #
-  # Первые две — особенно коварные: страницы про z-index и <input> на MDN
-  # существуют, но не прошли наш языковой фильтр (18% и 34% кириллицы),
-  # поэтому в индекс не попали. Вопрос выглядит абсолютно уместным.
+  # Каждая ловушка обязана указывать `absent_terms` — слова, которых в
+  # корпусе быть не должно. Тест проверяет это по реальному индексу.
+  # Проверка появилась не от хорошей жизни: первые версии ловушек про
+  # z-index, <input> и canvas оказались негодными — ответ на них в корпусе
+  # был, и система отвечала правильно, а эталон считал это ошибкой.
+  # Ловушка, на которую есть ответ, — худший вид ошибки в эталоне:
+  # она наказывает систему за верное поведение.
 
   - id: t01
     group: trap
-    question: как работает свойство z-index и почему элемент не поднимается наверх
+    question: как отследить появление элемента в области видимости через IntersectionObserver
     expected_slugs: []
+    absent_terms: [IntersectionObserver]
 
   - id: t02
     group: trap
-    question: какие типы бывают у элемента input в HTML
+    question: как закешировать приложение для работы офлайн через service worker
     expected_slugs: []
+    absent_terms: [ServiceWorker]
 
   - id: t03
     group: trap
     question: как получить координаты элемента через getBoundingClientRect
     expected_slugs: []
+    absent_terms: [getBoundingClientRect]
 
   - id: t04
     group: trap
     question: как подписаться на событие клика через addEventListener
     expected_slugs: []
+    absent_terms: [addEventListener]
 
   - id: t05
     group: trap
     question: как сохранить данные в localStorage браузера
     expected_slugs: []
+    absent_terms: [localStorage]
 
   - id: t06
     group: trap
-    question: как нарисовать прямоугольник на canvas
+    question: как определить местоположение пользователя через Geolocation API
     expected_slugs: []
+    absent_terms: [Geolocation]
 
   - id: t07
     group: trap
-    question: как запросить у пользователя доступ к камере
+    question: как запросить у пользователя доступ к камере через getUserMedia
     expected_slugs: []
+    absent_terms: [getUserMedia]
 
   - id: t08
     group: trap
     question: как настроить сборку проекта в webpack
     expected_slugs: []
+    absent_terms: [webpack]
 
   - id: t09
     group: trap
     question: чем useState отличается от useEffect в React
     expected_slugs: []
+    absent_terms: [useState, useEffect]
 
   - id: t10
     group: trap
     question: как развернуть приложение на сервере через docker compose
     expected_slugs: []
+    absent_terms: [docker]
 
   # --- На стыке тем ------------------------------------------------------
 

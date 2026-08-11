@@ -28,6 +28,10 @@ class Question:
     group: str
     question: str
     expected_slugs: tuple[str, ...]
+    #: Только для ловушек: слова, которых в корпусе быть не должно.
+    #: Проверяются тестом по реальному индексу — ловушка, на которую
+    #: в корпусе есть ответ, наказывает систему за правильное поведение.
+    absent_terms: tuple[str, ...] = ()
 
     @property
     def is_trap(self) -> bool:
@@ -63,6 +67,7 @@ def load_golden_set(path: Path | None = None) -> list[Question]:
                 group=entry["group"],
                 question=entry["question"],
                 expected_slugs=tuple(entry.get("expected_slugs") or ()),
+                absent_terms=tuple(entry.get("absent_terms") or ()),
             )
         )
 
