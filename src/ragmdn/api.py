@@ -84,7 +84,12 @@ def health() -> dict:
             "llm_model": settings.llm_model,
         }
     except Exception as exc:  # noqa: BLE001
-        raise HTTPException(status_code=503, detail=f"база недоступна: {exc}") from exc
+        # Сюда попадают и сбои базы, и сбои модели эмбеддингов. Писать
+        # «база недоступна» на любую из них — значит отправлять по ложному
+        # следу: так недоступный кэш моделей выглядел как проблема с базой.
+        raise HTTPException(
+            status_code=503, detail=f"сервис недоступен: {type(exc).__name__}: {exc}"
+        ) from exc
 
 
 @app.post("/search", response_model=SearchResponse)
@@ -100,7 +105,12 @@ def search_endpoint(request: AskRequest) -> SearchResponse:
     except IndexMismatchError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     except Exception as exc:  # noqa: BLE001
-        raise HTTPException(status_code=503, detail=f"база недоступна: {exc}") from exc
+        # Сюда попадают и сбои базы, и сбои модели эмбеддингов. Писать
+        # «база недоступна» на любую из них — значит отправлять по ложному
+        # следу: так недоступный кэш моделей выглядел как проблема с базой.
+        raise HTTPException(
+            status_code=503, detail=f"сервис недоступен: {type(exc).__name__}: {exc}"
+        ) from exc
 
     return SearchResponse(
         question=request.question,
@@ -125,7 +135,12 @@ def ask(request: AskRequest) -> AskResponse:
     except IndexMismatchError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     except Exception as exc:  # noqa: BLE001
-        raise HTTPException(status_code=503, detail=f"база недоступна: {exc}") from exc
+        # Сюда попадают и сбои базы, и сбои модели эмбеддингов. Писать
+        # «база недоступна» на любую из них — значит отправлять по ложному
+        # следу: так недоступный кэш моделей выглядел как проблема с базой.
+        raise HTTPException(
+            status_code=503, detail=f"сервис недоступен: {type(exc).__name__}: {exc}"
+        ) from exc
 
     try:
         result = answer_question(_state["model"], request.question, hits, settings)
