@@ -45,15 +45,19 @@ class FastEmbedBackend:
     только собирается вызвать `embed_passages`, но ещё не вызвал.
     """
 
-    def __init__(self, model_name: str):
+    def __init__(self, model_name: str, cache_dir: str = ""):
         self._model_name = model_name
+        self._cache_dir = cache_dir
         self._model = None
 
     def embed(self, texts: Iterable[str]) -> Iterable[Sequence[float]]:
         if self._model is None:
             from fastembed import TextEmbedding
 
-            self._model = TextEmbedding(model_name=self._model_name)
+            options = {"model_name": self._model_name}
+            if self._cache_dir:
+                options["cache_dir"] = self._cache_dir
+            self._model = TextEmbedding(**options)
         return self._model.embed(list(texts))
 
 
@@ -62,7 +66,9 @@ class Embedder:
 
     def __init__(self, settings: Settings, backend: EmbeddingBackend | None = None):
         self._settings = settings
-        self._backend = backend or FastEmbedBackend(settings.embedding_model)
+        self._backend = backend or FastEmbedBackend(
+            settings.embedding_model, settings.embedding_cache_dir
+        )
 
     def _check_dimension(self, vector: Sequence[float]) -> list[float]:
         if len(vector) != self._settings.embedding_dim:

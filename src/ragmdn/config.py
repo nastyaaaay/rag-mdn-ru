@@ -77,6 +77,11 @@ class Settings(BaseSettings):
 
     embedding_model: str = "intfloat/multilingual-e5-large"
     embedding_dim: int = 1024
+    #: Куда fastembed кладёт скачанную модель (2.2 ГБ). По умолчанию она
+    #: оседает во временной папке системного диска — на машине с малым
+    #: системным разделом это однажды не даёт запуститься уже Docker'у.
+    #: Пустое значение оставляет поведение библиотеки по умолчанию.
+    embedding_cache_dir: str = ""
     #: Предел модели. Вынесен в настройки, чтобы тест мог его проверить.
     embedding_max_tokens: int = 512
 
@@ -102,6 +107,9 @@ class Settings(BaseSettings):
     #: Больше — выше шанс, что ответ там есть, но и больше шума, в котором
     #: модель может потеряться; проверяется на шаге 12.
     answer_context_chunks: int = 5
+    #: Способ поиска при оценке качества ответов. Векторный, а не гибридный:
+    #: измерение на шаге 9 показало, что он лучше (Recall@1 43% против 38%).
+    eval_search_method: str = "vector"
 
     @property
     def raw_dir(self) -> Path:
@@ -112,6 +120,10 @@ class Settings(BaseSettings):
     def reports_dir(self) -> Path:
         """Куда складываем отчёты о качестве."""
         return PROJECT_ROOT / "reports"
+
+    @property
+    def project_root(self) -> Path:
+        return PROJECT_ROOT
 
     @field_validator("min_cyrillic_ratio")
     @classmethod

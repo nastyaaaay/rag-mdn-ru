@@ -1,10 +1,10 @@
-# Инфраструктура проекта: PostgreSQL с расширением pgvector.
+# Полный запуск проекта: база и приложение.
 #
-# Образ pgvector/pgvector — это обычный PostgreSQL, в который уже встроено
-# расширение для работы с векторами. Собирать его самостоятельно не нужно.
+#   docker compose up -d          — поднять базу и веб-приложение
+#   docker compose --profile tools run --rm indexer   — проиндексировать корпус
 #
-# Приложение пока запускается не в контейнере, а локально (шаг 14 добавит его
-# сюда же) — поэтому порт базы наружу проброшен.
+# Индексация вынесена в отдельный профиль: это разовая операция на час,
+# и запускать её при каждом `up` было бы бедствием.
 
 services:
   db:
@@ -23,17 +23,56 @@ services:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      # Файлы из этой папки выполняются при первом создании базы,
-      # в алфавитном порядке. Так создаётся расширение и схема.
       - ./db/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      # Пока проверка не пройдёт, база считается не готовой. Это нужно,
-      # чтобы скрипт индексации не начал ломиться в ещё не поднятый сервер.
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-rag} -d ${POSTGRES_DB:-ragmdn}"]
       interval: 3s
       timeout: 5s
       retries: 20
       start_period: 10s
 
+  app:
+    build: .
+    container_name: ragmdn-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Внутри сети compose база доступна по имени сервиса, а не по localhost.
+      DATABASE_URL: postgresql://${POSTGRES_USER:-rag}:${POSTGRES_PASSWORD:-rag}@db:5432/${POSTGRES_DB:-ragmdn}
+      # Модель эмбеддингов кладётся в том, а не в образ: иначе образ раздулся
+      # бы до трёх гигабайт и пересобирался при каждой смене модели.
+      EMBEDDING_CACHE_DIR: /models/fastembed
+      # По умолчанию — Ollama на хосте. host.docker.internal работает
+      # и на Windows, и на macOS; на Linux его добавляет extra_hosts ниже.
+      LLM_BASE_URL: ${LLM_BASE_URL:-http://host.docker.internal:11434/v1}
+      LLM_API_KEY: ${LLM_API_KEY:-ollama}
+      LLM_MODEL: ${LLM_MODEL:-qwen2.5:7b-instruct}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    volumes:
+      - models:/models
+
+  # Индексация корпуса. Отдельный профиль — команда разовая и долгая.
+  indexer:
+    build: .
+    profiles: ["tools"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-rag}:${POSTGRES_PASSWORD:-rag}@db:5432/${POSTGRES_DB:-ragmdn}
+      EMBEDDING_CACHE_DIR: /models/fastembed
+    volumes:
+      - models:/models
+      # Корпус берётся с хоста: скачивать его внутрь контейнера при каждом
+      # запуске бессмысленно, он не меняется.
+      - ./data:/app/data
+    command: ["python", "-m", "ragmdn.index_all"]
+
 volumes:
   pgdata:
+  models:
