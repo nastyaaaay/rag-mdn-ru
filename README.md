@@ -1,5 +1,7 @@
 # RAG по документации MDN с честной оценкой качества
 
+[![tests](https://github.com/nastyaaaay/rag-mdn-ru/actions/workflows/tests.yml/badge.svg)](https://github.com/nastyaaaay/rag-mdn-ru/actions/workflows/tests.yml)
+
 Поиск и ответы по русской документации MDN (JavaScript, CSS, HTML, HTTP,
 словарь веб-терминов) с измерением того, насколько ответы подтверждаются
 документами, а насколько выдуманы моделью.
