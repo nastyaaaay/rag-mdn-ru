@@ -52,9 +52,25 @@ _SELECT_FIELDS = """
     c.id, d.slug, d.title, d.source_url, c.heading_path, c.content
 """
 
+#: Условие, отсекающее фрагменты, состоящие из одного лишь кода.
+#: Таких в индексе 12% — следствие того, что код расходует лимит модели
+#: вдвое быстрее прозы и потому чаще не помещается вместе с ней.
+#: Гипотеза, которую проверяет шаг 12: они забивают выдачу и мешают
+#: находить содержательные фрагменты.
+#: Знак процента удвоен: psycopg считает одиночный `%` началом подстановки
+#: параметра и отказывается выполнять такой запрос.
+_EXCLUDE_CODE_ONLY = (
+    "AND NOT (btrim(c.content) LIKE '```%%' AND btrim(c.content) LIKE '%%```')"
+)
+
 
 def search_vector(
-    conn: psycopg.Connection, embedder: Embedder, query: str, limit: int = 5
+    conn: psycopg.Connection,
+    embedder: Embedder,
+    query: str,
+    limit: int = 5,
+    *,
+    exclude_code_only: bool = False,
 ) -> list[SearchHit]:
     """Поиск по смыслу через pgvector.
 
@@ -63,6 +79,7 @@ def search_vector(
     в score кладётся `1 - расстояние`.
     """
     query_vector = vector_literal(embedder.embed_query(query))
+    code_filter = _EXCLUDE_CODE_ONLY if exclude_code_only else ""
 
     with conn.cursor() as cur:
         cur.execute(
@@ -70,6 +87,7 @@ def search_vector(
             SELECT {_SELECT_FIELDS}, 1 - (c.embedding <=> %s::vector) AS score
             FROM chunks c
             JOIN documents d ON d.id = c.document_id
+            WHERE TRUE {code_filter}
             ORDER BY c.embedding <=> %s::vector
             LIMIT %s
             """,
@@ -142,7 +160,8 @@ def search_hybrid(
 
 
 #: Способы поиска, доступные по имени — нужно для сравнения на шаге 12.
-SEARCH_METHODS = ("vector", "fulltext", "hybrid")
+#: `vector_nocode` — тот же векторный, но без фрагментов из чистого кода.
+SEARCH_METHODS = ("vector", "fulltext", "hybrid", "vector_nocode")
 
 
 def search(
@@ -165,6 +184,8 @@ def search(
 
     if method == "vector":
         return search_vector(conn, embedder, query, limit)
+    if method == "vector_nocode":
+        return search_vector(conn, embedder, query, limit, exclude_code_only=True)
     if method == "fulltext":
         return search_fulltext(conn, query, limit)
     if method == "hybrid":

@@ -146,6 +146,32 @@ def test_hybrid_score_uses_rrf_formula(filled_db):
 
 
 @pytest.mark.db
+def test_vector_nocode_excludes_pure_code_chunks(filled_db):
+    """Проверка гипотезы шага 12: фрагменты чистого кода можно отсечь.
+
+    Таких в индексе 12%, и они попадали в выдачу вместо содержательных
+    фрагментов. Режим позволяет измерить, мешают ли они на самом деле.
+    """
+    conn, settings = filled_db
+    dim = settings.embedding_dim
+
+    # Добавляем фрагмент, состоящий только из кода
+    with conn.cursor() as cur:
+        cur.execute("SELECT id FROM documents LIMIT 1")
+        document_id = cur.fetchone()[0]
+    code_chunk = make_chunk(9, "```js\nconst x = 1;\n```")
+    insert_chunks(conn, document_id, [code_chunk], [unit_vector(dim, 0)])
+
+    embedder = Embedder(settings, FixedBackend(unit_vector(dim, 0)))
+
+    with_code = search(conn, embedder, "запрос", method="vector", limit=10)
+    without_code = search(conn, embedder, "запрос", method="vector_nocode", limit=10)
+
+    assert any(h.content.startswith("```") for h in with_code)
+    assert not any(h.content.startswith("```") for h in without_code)
+
+
+@pytest.mark.db
 def test_search_rejects_unknown_method(filled_db):
     conn, settings = filled_db
     embedder = Embedder(settings, FixedBackend(unit_vector(settings.embedding_dim, 0)))
