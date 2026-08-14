@@ -1,0 +1,36 @@
+# Автоматический прогон тестов при каждом изменении.
+#
+# Базу данных здесь намеренно НЕ поднимаем. Тесты, которым она нужна,
+# помечены меткой `db` и пропускаются сами — так проверяется заодно и то,
+# что проект работает на машине без Docker. Полный прогон с базой
+# запускается локально: pytest -m db
+
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # Позволяет запустить прогон вручную кнопкой на вкладке Actions.
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Установить зависимости
+        run: pip install -r requirements.txt
+
+      - name: Прогнать тесты
+        # Модель эмбеддингов (2.2 ГБ) не скачивается: тесты работают
+        # с поддельным бэкендом, реальная модель проверяется отдельной
+        # командой embeddings_check на машине разработчика.
+        run: pytest -q
