@@ -17,9 +17,33 @@ import pytest
 from psycopg import sql
 
 from ragmdn.config import PROJECT_ROOT, Settings
+from ragmdn.corpus.chunking import Chunk
 from ragmdn.db import connect
 
 SCHEMA_PATH = PROJECT_ROOT / "db" / "init" / "01-schema.sql"
+
+
+@pytest.fixture
+def make_chunk():
+    """Фабрика фрагментов для тестов.
+
+    Именно фикстура, а не обычная функция: тестовые модули не образуют
+    пакет, и импорт вида `from tests.test_db import make_chunk` работает
+    на Windows, но падает на Linux. Поймано автоматическим прогоном
+    на GitHub — локально все 190 тестов проходили.
+    """
+
+    def _make(ordinal: int, text: str) -> Chunk:
+        return Chunk(
+            slug="Web/Test",
+            title="Тест",
+            source_url="https://developer.mozilla.org/ru/docs/Web/Test",
+            heading_path=("Тест", "Раздел"),
+            ordinal=ordinal,
+            text=text,
+        )
+
+    return _make
 
 
 def _test_database_url(url: str) -> str:

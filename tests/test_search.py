@@ -13,7 +13,6 @@ from ragmdn.config import Settings
 from ragmdn.db import DocumentRow, connect, insert_chunks, insert_document, reset_index
 from ragmdn.embeddings import Embedder
 from ragmdn.search import RRF_K, search, search_fulltext, search_hybrid, search_vector
-from tests.test_db import make_chunk
 
 
 def make_settings(**overrides) -> Settings:
@@ -38,7 +37,7 @@ class FixedBackend:
 
 
 @pytest.fixture
-def filled_db(database_available, test_settings):
+def filled_db(database_available, test_settings, make_chunk):
     """Тестовая база с тремя фрагментами: два про массивы, один про строки."""
     if database_available is not None:
         pytest.skip(f"база недоступна ({database_available})")
@@ -146,7 +145,7 @@ def test_hybrid_score_uses_rrf_formula(filled_db):
 
 
 @pytest.mark.db
-def test_vector_nocode_excludes_pure_code_chunks(filled_db):
+def test_vector_nocode_excludes_pure_code_chunks(filled_db, make_chunk):
     """Проверка гипотезы шага 12: фрагменты чистого кода можно отсечь.
 
     Таких в индексе 12%, и они попадали в выдачу вместо содержательных

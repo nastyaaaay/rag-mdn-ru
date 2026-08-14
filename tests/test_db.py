@@ -34,17 +34,6 @@ def make_settings(**overrides) -> Settings:
     return Settings(_env_file=None, **overrides)
 
 
-def make_chunk(ordinal: int, text: str) -> Chunk:
-    return Chunk(
-        slug="Web/Test",
-        title="Тест",
-        source_url="https://developer.mozilla.org/ru/docs/Web/Test",
-        heading_path=("Тест", "Раздел"),
-        ordinal=ordinal,
-        text=text,
-    )
-
-
 # --- Тесты без базы ------------------------------------------------------
 
 
@@ -148,7 +137,7 @@ def test_mismatched_model_is_detected(db):
 
 
 @pytest.mark.db
-def test_insert_document_and_chunks_roundtrip(db):
+def test_insert_document_and_chunks_roundtrip(db, make_chunk):
     settings = make_settings()
     reset_index(db)
 
@@ -173,7 +162,7 @@ def test_insert_document_and_chunks_roundtrip(db):
 
 
 @pytest.mark.db
-def test_chunk_and_vector_count_must_match(db):
+def test_chunk_and_vector_count_must_match(db, make_chunk):
     """Рассинхрон текста и вектора — самая опасная ошибка: она не ломает
     поиск, а тихо портит его. Должна падать сразу и громко.
     """
@@ -196,7 +185,7 @@ def test_chunk_and_vector_count_must_match(db):
 
 
 @pytest.mark.db
-def test_reindexing_same_document_does_not_duplicate(db):
+def test_reindexing_same_document_does_not_duplicate(db, make_chunk):
     """Повторная индексация должна обновлять, а не плодить копии."""
     settings = make_settings()
     reset_index(db)
@@ -218,7 +207,7 @@ def test_reindexing_same_document_does_not_duplicate(db):
 
 
 @pytest.mark.db
-def test_cosine_distance_ranks_closer_vector_first(db):
+def test_cosine_distance_ranks_closer_vector_first(db, make_chunk):
     """Проверка, что векторный поиск в базе действительно работает."""
     settings = make_settings()
     reset_index(db)
