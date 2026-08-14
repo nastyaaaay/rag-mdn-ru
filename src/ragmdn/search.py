@@ -169,7 +169,10 @@ def search(
     embedder: Embedder,
     query: str,
     *,
-    method: str = "hybrid",
+    # Векторный, а не гибридный: измерение показало, что гибрид проигрывает
+    # (Recall@1 38% против 43%) — полнотекстовый поиск слишком слаб на
+    # вопросах человеческим языком и тянет объединённую выдачу вниз.
+    method: str = "vector",
     limit: int = 5,
     settings: Settings | None = None,
 ) -> list[SearchHit]:
